@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyCast - Flight Price Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ffffff;
+            --accent: #4FD1C5;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Blobs */
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: Linear-gradient(180deg, rgba(79, 209, 197, 0.4) 0%, rgba(66, 153, 225, 0.4) 100%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob:nth-child(1) {
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob:nth-child(2) {
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -10s;
+            background: Linear-gradient(180deg, rgba(236, 72, 153, 0.4) 0%, rgba(139, 92, 246, 0.4) 100%);
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(50px, 50px) scale(1.1);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #fff, #bce4f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(79, 209, 197, 0.2);
+        }
+
+        /* Customizing select dropdown arrow */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        select option {
+            background: #2d3748;
+            /* Dark background for options since glassmorphism doesn't work well inside select dropdowns */
+            color: white;
+        }
+
+        /* Custom Date Picker Indicator */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: #1a202c;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(79, 209, 197, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            text-align: center;
+            display: none;
+            /* Hidden by default */
+            animation: fadeIn 0.5s ease;
+            border: 1px solid var(--accent);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .price-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .price-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(79, 209, 197, 0.3);
+        }
+
+        .loading {
+            display: none;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="blob"></div>
+    <div class="blob"></div>
+
+    <div class="container">
+        <div class="glass-card">
+            <header>
+                <h1>SkyCast</h1>
+                <p class="subtitle">AI-Powered Flight Price Prediction</p>
+            </header>
+
+            <form id="predictionForm">
+                <div class="form-group-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="from">From</label>
+                        <input type="text" id="from" placeholder="City or Airport" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="to">To</label>
+                        <input type="text" id="to" placeholder="City or Airport" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="airline">Airline</label>
+                    <select id="airline" required>
+                        <option value="" disabled selected>Select Airline</option>
+                        <option value="delta">Delta Airlines</option>
+                        <option value="american">American Airlines</option>
+                        <option value="emirates">Emirates</option>
+                        <option value="lufthansa">Lufthansa</option>
+                        <option value="singapore">Singapore Airlines</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Travel Date</label>
+                    <input type="date" id="date" required min="">
+                </div>
+
+                <div class="form-group">
+                    <label for="class">Travel Class</label>
+                    <select id="class" required>
+                        <option value="economy">Economy</option>
+                        <option value="premium_economy">Premium Economy</option>
+                        <option value="business">Business Class</option>
+                        <option value="first">First Class</option>
+                    </select>
+                </div>
+
+                <button type="submit">Predict Price</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="loader"></div>
+            </div>
+
+            <div id="result">
+                <div class="bg-white/10 rounded-lg p-4 mb-4"
+                    style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                    <div class="flight-route"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-weight: 600; font-size: 1.1rem;">
+                        <span id="displayFrom">NYC</span>
+                        <span style="color: var(--accent);">✈</span>
+                        <span id="displayTo">LON</span>
+                    </div>
+                    <div class="flight-duration" style="font-size: 0.9rem; opacity: 0.8;">
+                        Duration: <span id="durationValue">7h 30m</span>
+                    </div>
+                </div>
+
+                <div class="price-label">Estimated Price</div>
+                <div class="price-value" id="priceValue">$0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set minimum date to today
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+
+        const form = document.getElementById('predictionForm');
+        const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
+        const priceValue = document.getElementById('priceValue');
+        const displayFrom = document.getElementById('displayFrom');
+        const displayTo = document.getElementById('displayTo');
+        const durationValue = document.getElementById('durationValue');
+
+        const BASE_PRICES = {
+            'delta': 300,
+            'american': 280,
+            'emirates': 600,
+            'lufthansa': 550,
+            'singapore': 650
+        };
+
+        const CLASS_MULTIPLIERS = {
+            'economy': 1,
+            'premium_economy': 1.5,
+            'business': 2.8,
+            'first': 5.0
+        };
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Hide previous result, show loader
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'flex';
+
+            const airline = document.getElementById('airline').value;
+            const travelClass = document.getElementById('class').value;
+            const dateStr = document.getElementById('date').value;
+            const fromLoc = document.getElementById('from').value;
+            const toLoc = document.getElementById('to').value;
+
+            // Generate mock duration based on input length hash (pseudo-consistent)
+            const mockDuration = calculateMockDuration(fromLoc, toLoc);
+
+            // Simulate API delay
+            setTimeout(() => {
+                const price = calculateMockPrice(airline, travelClass, dateStr, mockDuration.hours);
+
+                priceValue.textContent = formatCurrency(price);
+                displayFrom.textContent = fromLoc.toUpperCase();
+                displayTo.textContent = toLoc.toUpperCase();
+                durationValue.textContent = `${mockDuration.hours}h ${mockDuration.minutes}m`;
+
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+            }, 1500);
+        });
+
+        function calculateMockDuration(from, to) {
+            // Simple hash to make duration consistent for same inputs
+            const combined = (from + to).toLowerCase();
+            let hash = 0;
+            for (let i = 0; i < combined.length; i++) {
+                hash = combined.charCodeAt(i) + ((hash << 5) - hash);
+            }
+
+            // Map hash to realistic flight range (1h to 16h)
+            const minHours = 1;
+            const maxHours = 16;
+            const hours = Math.abs(hash % (maxHours - minHours)) + minHours;
+            const minutes = Math.abs(hash % 6) * 10; // 0, 10, 20... 50
+
+            return { hours, minutes };
+        }
+
+        function calculateMockPrice(airline, travelClass, dateStr, durationHours) {
+            let base = BASE_PRICES[airline] || 400;
+            let multiplier = CLASS_MULTIPLIERS[travelClass] || 1;
+
+            // Duration Factor: Longer flights cost more
+            // Assume roughly $50 per hour of flight in base calculation
+            const durationCost = durationHours * 40;
+
+            // Date Factor: Weekends are more expensive, closer dates are more expensive
+            const date = new Date(dateStr);
+            const day = date.getDay(); // 0 is Sunday, 6 is Saturday
+            let dateMultiplier = 1;
+
+            if (day === 0 || day === 6) {
+                dateMultiplier += 0.2; // 20% more on weekends
+            }
+
+            // Seasonality (Mock): Summer (Jun-Aug) and Dec are expensive
+            const month = date.getMonth();
+            if ((month >= 5 && month <= 7) || month === 11) {
+                dateMultiplier += 0.3;
+            }
+
+            // Pseudo-random variation
+            const randomVariation = (Math.random() * 0.2) - 0.1; // +/- 10%
+
+            let finalPrice = (base + durationCost) * multiplier * dateMultiplier * (1 + randomVariation);
+
+            return Math.round(finalPrice);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+    </script>
+</body>
+
+</html>
