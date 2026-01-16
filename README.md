@@ -24,8 +24,6 @@ SkyCast is a modern, AI-powered flight price prediction tool featuring a stunnin
 2. Open [index.html](cci:7://file:///C:/Users/Shashank%20Naik/.gemini/antigravity/scratch/flight_price_predictor/index.html:0:0-0:0) in any modern web browser.
 3. Select your flight details and hit **Predict Price**!
 
-## 📸 Screenshots
-
 *(Add your screenshots here)*
 
 ---
